@@ -3,22 +3,12 @@
   set_fact:
     # noqa: jinja[spacing]
     external_apiserver_address: >-
-      {%- if loadbalancer_apiserver is defined and loadbalancer_apiserver.address is defined -%}
-      {{ loadbalancer_apiserver.address }}
-      {%- elif kubeconfig_localhost_ansible_host is defined and kubeconfig_localhost_ansible_host -%}
-      {{ hostvars[groups['kube_control_plane'][0]].ansible_host }}
-      {%- else -%}
-      {{ kube_apiserver_access_address }}
-      {%- endif -%}
+      {%- if loadbalancer_apiserver is defined and loadbalancer_apiserver.address is defined -%} {{ loadbalancer_apiserver.address }} {%- elif kubeconfig_localhost_ansible_host is defined and kubeconfig_localhost_ansible_host -%} {{ hostvars[groups['kube_control_plane'][0]].ansible_host }} {%- else -%} {{ kube_apiserver_access_address }} {%- endif -%}
     # noqa: jinja[spacing]
     external_apiserver_port: >-
-      {%- if loadbalancer_apiserver is defined and loadbalancer_apiserver.address is defined and loadbalancer_apiserver.port is defined -%}
-      {{ loadbalancer_apiserver.port | default(kube_apiserver_port) }}
-      {%- else -%}
-      {{ kube_apiserver_port }}
-      {%- endif -%}
+      {%- if loadbalancer_apiserver is defined and loadbalancer_apiserver.address is defined and loadbalancer_apiserver.port is defined -%} {{ loadbalancer_apiserver.port | default(kube_apiserver_port) }} {%- else -%} {{ kube_apiserver_port }} {%- endif -%}
   tags:
-    - facts
+  - facts
 
 - name: Create kube config dir for current/ansible become user
   file:
@@ -87,18 +77,18 @@
   run_once: true
   when: kubeconfig_localhost
 
-- name: Copy kubectl binary to ansible host
-  fetch:
-    src: "{{ bin_dir }}/kubectl"
-    dest: "{{ artifacts_dir }}/kubectl"
-    flat: true
-    validate_checksum: false
-  register: copy_binary_result
-  until: copy_binary_result is not failed
-  retries: 20
-  become: false
-  run_once: true
-  when: kubectl_localhost
+# - name: Copy kubectl binary to ansible host
+#   fetch:
+#     src: "{{ bin_dir }}/kubectl"
+#     dest: "{{ artifacts_dir }}/kubectl"
+#     flat: true
+#     validate_checksum: false
+#   register: copy_binary_result
+#   until: copy_binary_result is not failed
+#   retries: 20
+#   become: false
+#   run_once: true
+#   when: kubectl_localhost
 
 - name: Create helper script kubectl.sh on ansible host
   copy:
